@@ -1,0 +1,3 @@
+/home/alvaro/Documents/Maestria/PDI/Tarea1/Tutoriales_OpenCV/IntroductionToOpenCV/CMakeFiles/rebuild_cache.dir
+/home/alvaro/Documents/Maestria/PDI/Tarea1/Tutoriales_OpenCV/IntroductionToOpenCV/CMakeFiles/DisplayImage.dir
+/home/alvaro/Documents/Maestria/PDI/Tarea1/Tutoriales_OpenCV/IntroductionToOpenCV/CMakeFiles/edit_cache.dir

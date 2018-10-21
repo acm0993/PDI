@@ -1,0 +1,15 @@
+\BOOKMARK [1][-]{section.1}{Sensores CCD \(Charge-Coupled Device\)}{}% 1
+\BOOKMARK [1][-]{section.2}{Tecnolog\355as CCD}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Transferencia Interlinea \(Interline Transfer\)}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Transferencia de Cuadro \(Frame Transfer\)}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.3}{ Cuadro Completo \(Full Frame\)}{section.2}% 5
+\BOOKMARK [1][-]{section.3}{Sensor CMOS}{}% 6
+\BOOKMARK [1][-]{section.4}{Ventajas y desventajas de tecnolog\355as CCD contra CMOS.}{}% 7
+\BOOKMARK [1][-]{section.5}{Captura del color}{}% 8
+\BOOKMARK [2][-]{subsection.5.1}{Filtros de Bayer}{section.5}% 9
+\BOOKMARK [2][-]{subsection.5.2}{Sensores Foveon X3}{section.5}% 10
+\BOOKMARK [2][-]{subsection.5.3}{C\341maras de Triple CCD}{section.5}% 11
+\BOOKMARK [1][-]{section.6}{Procesamiento con im\341genes de profundidad}{}% 12
+\BOOKMARK [2][-]{subsection.6.1}{Sensores RGB-D}{section.6}% 13
+\BOOKMARK [2][-]{subsection.6.2}{Sensores ToF \(Time of Flight\)}{section.6}% 14
+\BOOKMARK [1][-]{section*.11}{Referencias}{}% 15
