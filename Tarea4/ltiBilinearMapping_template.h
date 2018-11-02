@@ -338,7 +338,7 @@ namespace lti {
         w_inv.set(i,j);
         w[i][j] = bilinearMapping<T,I>::backwards(w_inv);
         //std::cout << i << " " << j << " " << w[i][j] << "\n";
-        this -> interpolator_ = w[i][j] ;
+        this -> interpolator_;
       }
     }
 
