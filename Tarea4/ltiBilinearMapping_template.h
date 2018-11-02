@@ -48,7 +48,17 @@
  */
 
 #include "ltiBilinearMapping.h"
-#include <cstdlib>
+
+
+// Standard Headers: from ANSI C and GNU C Library
+#include <cstdlib>  // Standard Library for C++
+#include <getopt.h> // Functions to parse the command line arguments
+
+// Standard Headers: STL
+#include <iostream>
+#include <string>
+#include <fstream>
+
 
 namespace lti {
   // --------------------------------------------------
@@ -288,10 +298,10 @@ namespace lti {
       return false;
     }
 
-    ai_=-d_;
+    di_= d_;
     bi_= b_;
     ci_= c_;
-    di_=-a_;
+    ai_= a_;
 
     return true;
   }
@@ -319,13 +329,16 @@ namespace lti {
     //lti::ipoint pixel_orig;
     lti::fcomplex z_orig, w_inv;
     lti::rgbaPixel color;
+    lti::fcomplex w[img_rows][img_columns];
+    //std::cout << ai_ << " " << bi_ << " " << ci_ << di_ << "\n";
     //pixel_orig
     for (int i = 0; i < img_rows; i++){
       //z_orig.set(0,0);
       for (int j = 0; j < img_columns; j++){
-        z_orig.set(i,j);
-        color = src.at(lti::ipoint(i,j));
-        w_inv = bilinearMapping<T,I>::forwards(z_orig);
+        w_inv.set(i,j);
+        w[i][j] = bilinearMapping<T,I>::backwards(w_inv);
+        //std::cout << i << " " << j << " " << w[i][j] << "\n";
+        this -> interpolator_ = w[i][j] ;
       }
     }
 
@@ -370,7 +383,8 @@ namespace lti {
   fcomplex bilinearMapping<T,I>::backwards(const fcomplex& w) const {
     lti::fcomplex z;
 
-    z = (bi_ - w*di_)/(ci_ * w - ai_);
+    z = (bi_ - w * di_)/(ci_ * w - ai_);
+
     // TODO: Put your code here
     //       Dummy implementation just returns the input z
     return z;
