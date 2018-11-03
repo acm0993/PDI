@@ -170,17 +170,6 @@ int main(int argc, char* argv[]) {
       view.show(img); // show the image
 
 
-
-      int img_rows = img.rows();
-      int img_columns = img.columns();
-
-      std::cout << "src_rows: " << img_rows <<'\n';
-      std::cout << "src_columns: " << img_columns <<'\n';
-      for (int i = 0; i < 10; i++) {
-        std::cout << "color: " << img.at(lti::ipoint(i,i)) <<endl;
-      }
-
-
       // a container for the resulting image
       lti::image mapped;
       // perform the mapping

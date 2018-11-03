@@ -324,21 +324,63 @@ namespace lti {
 
     //dest.copy(src);
 
-    int img_rows = src.rows();
-    int img_columns = src.columns();
-    //lti::ipoint pixel_orig;
-    lti::fcomplex z_orig, w_inv;
-    lti::rgbaPixel color;
-    lti::fcomplex w[img_rows][img_columns];
-    //std::cout << ai_ << " " << bi_ << " " << ci_ << di_ << "\n";
-    //pixel_orig
-    for (int i = 0; i < img_rows; i++){
-      //z_orig.set(0,0);
-      for (int j = 0; j < img_columns; j++){
-        w_inv.set(i,j);
-        w[i][j] = bilinearMapping<T,I>::backwards(w_inv);
-        //std::cout << i << " " << j << " " << w[i][j] << "\n";
-        this -> interpolator_;
+    lti::fcomplex p00, px0, p0y, pxy, z;
+    lti::fcomplex tmp_w, w_inv;
+    int tmp_rows, tmp_columns;
+
+    //********************************************
+    //Se hace el calculo de las cuatro esquinas
+    //********************************************
+    z.set(0,0);
+    p00 = bilinearMapping<T,I>::forwards(z);
+
+    z.set(src.columns(),0);
+    px0 = bilinearMapping<T,I>::forwards(z);
+
+    z.set(0,src.rows());
+    p0y = bilinearMapping<T,I>::forwards(z);
+
+    z.set(src.columns(),src.rows());
+    pxy = bilinearMapping<T,I>::forwards(z);
+
+    //**********Se hace el ajuste de los canales de la imagen destino ******************
+    if (p0y.imag() > pxy.imag()){
+      tmp_rows = (int)p0y.imag() + 1 - (int)p00.imag();
+    }
+    else {
+      tmp_rows = (int)pxy.imag() + 1 - (int)p00.imag();
+    }
+
+    if (px0.real() > pxy.real()){
+      tmp_columns = (int)px0.real() + 1 - (int)p00.real();
+    }
+    else {
+      tmp_columns = (int)pxy.real() + 1 - (int)p00.real();
+    }
+
+    //***************Tal y como dice el enunciado, se verifica si algun canal es mayor a 2048, si ese es el caso se trunca a ese valor************
+    if (tmp_columns > 2048)
+    {
+      tmp_columns = 2048;
+    }
+
+    if (tmp_rows > 2048)
+    {
+      tmp_rows = 2048;
+    }
+
+    // se reajusta el tamano de la imagen
+    dest.resize(tmp_rows,tmp_columns,0);
+
+    //el tamano al cual llegan los "for" es ajustada para compensar el offset que se da en caso que los parametros de la transformacion sean modificados y (0,0) no se mapee a (0,0)
+    for (int i = (int)p00.imag(); i < (tmp_rows + (int)p00.imag()); i++){
+      for (int j = (int)p00.real(); j < (tmp_columns + (int)p00.real()) ; j++){
+        tmp_w.set(j,i);
+        // se produce el mapeo inverso del punto actual de la imagen destino
+        w_inv = bilinearMapping<T,I>::backwards(tmp_w);
+        //si existe un offser se reajusta al pixel que corresponde el mapeo
+        dest.at(lti::ipoint(j - (int)p00.real(),i - (int)p00.imag())) = this -> interpolator_.apply(src,w_inv.imag(), w_inv.real());
+
       }
     }
 
