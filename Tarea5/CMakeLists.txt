@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 2.8)
+project( tarea05 )
+find_package( OpenCV REQUIRED )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+add_executable( tarea05 tarea05.cpp )
+target_link_libraries( tarea05 ${OpenCV_LIBS} )
