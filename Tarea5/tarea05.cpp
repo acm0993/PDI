@@ -10,11 +10,8 @@ typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::microseconds us;
 typedef std::chrono::duration<float> fsec;
 
-ofstream outputFile_sepfilter_space, outputFile_filter_space;
-ofstream csv_sepfilter_space, csv_filter_space;
-std::string file_format = ".txt";
-std::string filename_filter_space = "time_filter_space_n_";
-std::string filename_sepfilter_space = "time_sepfilter_space_n_";
+//ofstream outputFile_sepfilter_space, outputFile_filter_space;
+
 
 int main(int argc, char** argv )
 {
@@ -30,40 +27,102 @@ int main(int argc, char** argv )
         printf("No image data \n");
         return -1;
     }
-
+    ofstream sepfilter_space_file, filter_space_file;
+    std::string filename_filter_space = "time_filter_space.csv";
+    std::string filename_sepfilter_space = "time_sepfilter_space.csv";
     cv::Mat kernel1d, kernel2d, img_filter2d_espacio, img_sepfilter2d_espacio, img_filter2d_freq, img_sepfilter2d_freq;
     int s;
     double sigma;
     high_resolution_clock::time_point t0, t1;
     fsec elapsed_time;
-    string n;
 
-    //csv_sepfilter_space.open(outputFile_sepfilter_space,filename_sepfilter_space);
-    //csv_filter_space.open(outputFile_filter_space,filename_filter_space);
+    s = 1;
+    uint num_kernels = 25;
+    uint num_interactions = 25;
 
-    s = 5;
-    //n = std::to_string(s);
-    //std::cout << filename_sepfilter_space + n + file_format << '\n';
-    sigma = (s+2)/6;
-    kernel1d = cv::getGaussianKernel(s, sigma, CV_32F);
 
-    kernel2d = kernel1d * kernel1d.t();
+    float data_array_sepfilter [num_kernels][num_interactions];
+    float data_array_filter [num_kernels][num_interactions];
+    // char* data_array_sepfilter [num_kernels][num_interactions];
+    // char* data_array_filter [num_kernels][num_interactions];
 
-    t0 = Time::now();
-    cv::sepFilter2D(image, img_sepfilter2d_espacio, -1, kernel1d.t(), kernel1d, Point(-1,-1), 0, BORDER_DEFAULT);
-    t1 = Time::now();
+    //std::cout << "hola1" << '\n';
 
-    elapsed_time = t1 - t0;
+    //sepfilter_space_file.open(filename_sepfilter_space, std::ofstream::out | std::ofstream::app);
+    //filter_space_file.open(filename_filter_space, std::ofstream::out | std::ofstream::app);
 
-    std::cout << elapsed_time.count() << "s\n";
+    for (uint i = 0; i < num_kernels; i++) {
+      sigma = (s+2)/6;
+      kernel1d = cv::getGaussianKernel(s, sigma, CV_32F);
+      kernel2d = kernel1d * kernel1d.t();
 
-    t0 = Time::now();
-    cv::filter2D(image, img_filter2d_espacio, -1, kernel2d, Point(-1,-1), 0, BORDER_DEFAULT);
-    t1 = Time::now();
+      //sprintf(data_array_sepfilter[i][0], "%d", s);
+      //sprintf(data_array_filter[i][0], "%d", s);
+      data_array_sepfilter[i][0] = (float)s;
+      data_array_filter[i][0] = (float)s;
 
-    elapsed_time = t1 - t0;
+      //std::cout << "s: " << s << " sigma: "<< sigma << '\n';
 
-    std::cout << elapsed_time.count() << "s\n";
+
+      for (uint j = 1; j < num_interactions + 1; j++) {
+        t0 = Time::now();
+        cv::sepFilter2D(image, img_sepfilter2d_espacio, -1, kernel1d.t(), kernel1d, Point(-1,-1), 0, BORDER_DEFAULT);
+        t1 = Time::now();
+
+        elapsed_time = t1 - t0;
+
+        //sprintf(data_array_sepfilter[i][j], "%f", elapsed_time.count());
+        data_array_sepfilter[i][j] = elapsed_time.count();
+
+        //std::cout << "data_array_filter " << data_array_filter[i][j] << " " << elapsed_time.count() << "s\n";
+
+        //std::cout << elapsed_time.count() << "s\n";
+
+        t0 = Time::now();
+        cv::filter2D(image, img_filter2d_espacio, -1, kernel2d, Point(-1,-1), 0, BORDER_DEFAULT);
+        t1 = Time::now();
+
+        elapsed_time = t1 - t0;
+
+        //sprintf(data_array_filter[i][j], "%f", elapsed_time.count());
+        data_array_filter[i][j] = elapsed_time.count();
+
+        //std::cout << "data_array_sepfilter " << data_array_sepfilter[i][j] << " " << elapsed_time.count() << "s\n";
+      }
+      s = s + 2;
+    }
+
+    //std::cout << "hola" << '\n';
+    sepfilter_space_file.open(filename_sepfilter_space, std::ofstream::app);
+    filter_space_file.open(filename_filter_space, std::ofstream::out | std::ofstream::app);
+
+    if ((sepfilter_space_file.is_open()) && (filter_space_file.is_open())) {
+      for (uint i = 0; i < num_interactions; i++) {
+        for (uint j = 0; j < num_kernels; j++) {
+          sepfilter_space_file << data_array_sepfilter[j][i] << ",";
+          //std::cout << "data_array_sepfilter " << j << " " << i << " = " << data_array_sepfilter[j][i] <<'\n';
+          filter_space_file << data_array_filter[j][i] << ",";
+          //std::cout << "data_array_filter " << j << " " << i << " = " << data_array_filter[j][i] <<'\n';
+        }
+        sepfilter_space_file << "\n";
+        filter_space_file << "\n";
+      }
+    }
+
+    // sepfilter_space_file.write((char*)data_array_sepfilter,num_kernels*num_interactions*sizeof(float));
+    // filter_space_file.write((char*)data_array_filter,num_kernels*num_interactions*sizeof(float));
+
+    filter_space_file.close();
+    sepfilter_space_file.close();
+
+
+    // for (uint i = 0; i < num_kernels; i++) {
+    //   for (uint j = 0; i < num_interactions; j++) {
+    //     csv_sepfilter_space.write((char*)&data_array_sepfilter[i][j])
+    //   }
+    // }
+
+
 
     //std::cout << "sizekernel1d: " << kernel1d.size()<<'\n';
     //std::cout << "sizekernel2d: " << kernel2d.size()<<'\n';
