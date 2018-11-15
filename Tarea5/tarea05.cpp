@@ -10,7 +10,57 @@ typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::microseconds us;
 typedef std::chrono::duration<float> fsec;
 
-//ofstream outputFile_sepfilter_space, outputFile_filter_space;
+
+void compute_dft(const Mat &img_src, Mat &img_dst)
+{
+    Mat padded;
+    int m = getOptimalDFTSize( img_src.rows );
+    int n = getOptimalDFTSize( img_src.cols ); // on the border add zero values
+    copyMakeBorder(img_src, padded, 0, m - img_src.rows, 0, n - img_src.cols, BORDER_CONSTANT, Scalar::all(0));
+
+    Mat planes[2] = {Mat_<float>(padded), Mat::zeros(padded.size(), CV_32F)};
+    Mat complexI;
+    merge(planes, 2, complexI);         // Add to the expanded another plane with zeros
+
+    dft(complexI, img_dst, DFT_COMPLEX_OUTPUT);
+}
+
+void visualize_dft(const Mat &img_src, Mat &img_dst){
+    std::cout << "size: " << img_src.size() << '\n';
+    Mat planes [2] = {Mat::zeros(img_src.size(), CV_32F), Mat::zeros(img_src.size(), CV_32F)}; ;
+    split(img_src, planes);                   // planes[0] = Re(DFT(I), planes[1] = Im(DFT(I))
+    magnitude(planes[0], planes[1], planes[0]);// planes[0] = magnitude
+    img_dst = planes[0];
+
+    img_dst += Scalar::all(1);                    // switch to logarithmic scale
+    log(img_dst, img_dst);
+    // crop the spectrum, if it has an odd number of rows or columns
+    img_dst = img_dst(Rect(0, 0, img_dst.cols & -2, img_dst.rows & -2));
+
+    // rearrange the quadrants of Fourier image  so that the origin is at the image center
+    int cx = img_dst.cols/2;
+    int cy = img_dst.rows/2;
+
+    Mat q0(img_dst, Rect(0, 0, cx, cy));   // Top-Left - Create a ROI per quadrant
+    Mat q1(img_dst, Rect(cx, 0, cx, cy));  // Top-Right
+    Mat q2(img_dst, Rect(0, cy, cx, cy));  // Bottom-Left
+    Mat q3(img_dst, Rect(cx, cy, cx, cy)); // Bottom-Right
+
+    Mat tmp;                           // swap quadrants (Top-Left with Bottom-Right)
+    q0.copyTo(tmp);
+    q3.copyTo(q0);
+    tmp.copyTo(q3);
+
+    q1.copyTo(tmp);                    // swap quadrant (Top-Right with Bottom-Left)
+    q2.copyTo(q1);
+    tmp.copyTo(q2);
+    normalize(img_dst, img_dst, 0, 1, CV_MINMAX);
+}
+void compute_idft(const Mat &img_src, Mat &img_dst)
+{
+    dft(img_src, img_dst, DFT_INVERSE | DFT_REAL_OUTPUT | DFT_SCALE);
+    normalize(img_dst, img_dst, 0, 1, CV_MINMAX);
+}
 
 
 int main(int argc, char** argv )
@@ -43,27 +93,14 @@ int main(int argc, char** argv )
 
     float data_array_sepfilter [num_kernels][num_interactions];
     float data_array_filter [num_kernels][num_interactions];
-    // char* data_array_sepfilter [num_kernels][num_interactions];
-    // char* data_array_filter [num_kernels][num_interactions];
-
-    //std::cout << "hola1" << '\n';
-
-    //sepfilter_space_file.open(filename_sepfilter_space, std::ofstream::out | std::ofstream::app);
-    //filter_space_file.open(filename_filter_space, std::ofstream::out | std::ofstream::app);
 
     for (uint i = 0; i < num_kernels; i++) {
       sigma = (s+2)/6;
       kernel1d = cv::getGaussianKernel(s, sigma, CV_32F);
       kernel2d = kernel1d * kernel1d.t();
 
-      //sprintf(data_array_sepfilter[i][0], "%d", s);
-      //sprintf(data_array_filter[i][0], "%d", s);
       data_array_sepfilter[i][0] = (float)s;
       data_array_filter[i][0] = (float)s;
-
-      //std::cout << "s: " << s << " sigma: "<< sigma << '\n';
-
-
       for (uint j = 1; j < num_interactions + 1; j++) {
         t0 = Time::now();
         cv::sepFilter2D(image, img_sepfilter2d_espacio, -1, kernel1d.t(), kernel1d, Point(-1,-1), 0, BORDER_DEFAULT);
@@ -71,12 +108,7 @@ int main(int argc, char** argv )
 
         elapsed_time = t1 - t0;
 
-        //sprintf(data_array_sepfilter[i][j], "%f", elapsed_time.count());
         data_array_sepfilter[i][j] = elapsed_time.count();
-
-        //std::cout << "data_array_filter " << data_array_filter[i][j] << " " << elapsed_time.count() << "s\n";
-
-        //std::cout << elapsed_time.count() << "s\n";
 
         t0 = Time::now();
         cv::filter2D(image, img_filter2d_espacio, -1, kernel2d, Point(-1,-1), 0, BORDER_DEFAULT);
@@ -84,15 +116,12 @@ int main(int argc, char** argv )
 
         elapsed_time = t1 - t0;
 
-        //sprintf(data_array_filter[i][j], "%f", elapsed_time.count());
         data_array_filter[i][j] = elapsed_time.count();
 
-        //std::cout << "data_array_sepfilter " << data_array_sepfilter[i][j] << " " << elapsed_time.count() << "s\n";
       }
       s = s + 2;
     }
 
-    //std::cout << "hola" << '\n';
     sepfilter_space_file.open(filename_sepfilter_space, std::ofstream::app);
     filter_space_file.open(filename_filter_space, std::ofstream::out | std::ofstream::app);
 
@@ -100,32 +129,28 @@ int main(int argc, char** argv )
       for (uint i = 0; i < num_interactions; i++) {
         for (uint j = 0; j < num_kernels; j++) {
           sepfilter_space_file << data_array_sepfilter[j][i] << ",";
-          //std::cout << "data_array_sepfilter " << j << " " << i << " = " << data_array_sepfilter[j][i] <<'\n';
           filter_space_file << data_array_filter[j][i] << ",";
-          //std::cout << "data_array_filter " << j << " " << i << " = " << data_array_filter[j][i] <<'\n';
+
         }
         sepfilter_space_file << "\n";
         filter_space_file << "\n";
       }
     }
-
-    // sepfilter_space_file.write((char*)data_array_sepfilter,num_kernels*num_interactions*sizeof(float));
-    // filter_space_file.write((char*)data_array_filter,num_kernels*num_interactions*sizeof(float));
-
     filter_space_file.close();
     sepfilter_space_file.close();
 
-
-    // for (uint i = 0; i < num_kernels; i++) {
-    //   for (uint j = 0; i < num_interactions; j++) {
-    //     csv_sepfilter_space.write((char*)&data_array_sepfilter[i][j])
-    //   }
-    // }
+    Mat img_inv_fourier,tmp_dst, img_inverted;
+    compute_dft(image,img_inv_fourier);
+    visualize_dft(img_inv_fourier,tmp_dst);
+    compute_idft(img_inv_fourier,img_inverted);
 
 
+    namedWindow("Freq Image", WINDOW_AUTOSIZE );
+    imshow("Freq Image", tmp_dst);
 
-    //std::cout << "sizekernel1d: " << kernel1d.size()<<'\n';
-    //std::cout << "sizekernel2d: " << kernel2d.size()<<'\n';
+    namedWindow("Freq Inv Image", WINDOW_AUTOSIZE );
+    imshow("Freq Inv Image", img_inverted);
+
     namedWindow("Original Image", WINDOW_AUTOSIZE );
     imshow("Original Image", image);
     namedWindow("Image Filtered: sepFilter2D", WINDOW_AUTOSIZE );
