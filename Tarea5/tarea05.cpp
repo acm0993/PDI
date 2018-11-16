@@ -74,7 +74,7 @@ void compute_idft(const Mat &img_src, Mat &img_dst){
 }
 
 void applyfilter_freq_2d(const Mat &src, Mat &dst, const Mat &kernel){
-  Mat src_freq, kernel_freq,,new_img_freq,tmp_dst;
+  Mat src_freq, kernel_freq,new_img_freq,tmp_dst;
   compute_dft(src, src_freq);
   cv::Size tmp_size = src_freq.size();
   compute_dft_fil(kernel, kernel_freq, tmp_size);
@@ -83,38 +83,16 @@ void applyfilter_freq_2d(const Mat &src, Mat &dst, const Mat &kernel){
   tmp_dst(Rect((kernel.cols), (kernel.rows), src.cols -(kernel.cols), src.rows-(kernel.rows))).copyTo(dst);
 }
 
-void applyfilter_freq_sep(const Mat &src, Mat &dst, const Mat &kernel1, const Mat &kernel2, bool flag_show, bool flag_kernel1d){
+void applyfilter_freq_sep(const Mat &src, Mat &dst, const Mat &kernel1, const Mat &kernel2){
   Mat src_freq, kernel_freq1,kernel_freq2,new_img_freq,tmp_dst;
   compute_dft(src, src_freq);
   cv::Size tmp_size = src_freq.size();
   compute_dft_fil(kernel1, kernel_freq1, tmp_size);
   mulSpectrums(src_freq, kernel_freq1, new_img_freq,0,false);
-  if (flag_kernel1d == true){
-    std::cout << "/* message */" << '\n';
-    compute_dft_fil(kernel2, kernel_freq2, tmp_size);
-    mulSpectrums(new_img_freq, kernel_freq2, new_img_freq,0,false);
-  }
+  compute_dft_fil(kernel2, kernel_freq2, tmp_size);
+  mulSpectrums(new_img_freq, kernel_freq2, new_img_freq,0,false);
   compute_idft(new_img_freq, tmp_dst);
-  tmp_dst(Rect((kernel1.cols), (kernel1.rows), src.cols -(kernel1.cols), src.rows-(kernel1.rows))).copyTo(dst);
-
-  if(flag_show == true){
-    Mat kernel_freq_tmp1, new_img_freq_tmp, src_freq_tmp,kernel_freq_tmp2;
-    visualize_dft(kernel_freq1, kernel_freq_tmp1);
-    visualize_dft(new_img_freq, new_img_freq_tmp);
-    visualize_dft(src_freq, src_freq_tmp);
-    namedWindow("Kernel1 Freq", WINDOW_AUTOSIZE );
-    imshow("Kernel1 Freq", kernel_freq_tmp1);
-    if (flag_kernel1d == true){
-      visualize_dft(kernel_freq2, kernel_freq_tmp2);
-      namedWindow("Kernel2 Freq", WINDOW_AUTOSIZE );
-      imshow("Kernel2 Freq", kernel_freq_tmp1);
-    }
-    namedWindow("Image Freq", WINDOW_AUTOSIZE );
-    imshow("Image Freq", src_freq_tmp);
-    namedWindow("Image after kernel Freq", WINDOW_AUTOSIZE );
-    imshow("Image after kernel Freq", new_img_freq_tmp);
-  }
-
+  tmp_dst(Rect((kernel1.cols), (kernel2.rows), src.cols -(kernel1.cols), src.rows-(kernel2.rows))).copyTo(dst);
 }
 
 
@@ -196,7 +174,7 @@ int main(int argc, char** argv )
     sepfilter_space_file.close();
 
 
-    s = 10;
+    s = 20;
     sigma = (s+2)/6;
     kernel1d = cv::getGaussianKernel(s, sigma, CV_32F);
     kernel2d = kernel1d * kernel1d.t();
@@ -204,13 +182,16 @@ int main(int argc, char** argv )
     cv::sepFilter2D(image, img_sepfilter2d_espacio, -1, kernel1d.t(), kernel1d, Point(-1,-1), 0, BORDER_DEFAULT);
     cv::filter2D(image, img_filter2d_espacio, -1, kernel2d, Point(-1,-1), 0, BORDER_DEFAULT);
 
-    Mat out_conv;
-    applyfilter_freq(image, out_conv, kernel2d, kernel2d, true, false);
-    applyfilter_freq(image, out_conv, kernel1d.t(), kernel1d, true, true);
+    Mat out_conv_2d, out_conv_sep;
+    applyfilter_freq_2d(image, out_conv_2d, kernel2d);
+    applyfilter_freq_sep(image, out_conv_sep, kernel1d.t(), kernel1d);
 
 
-    namedWindow("out conv", WINDOW_AUTOSIZE );
-    imshow("out conv", out_conv);namedWindow("Original Image", WINDOW_AUTOSIZE );
+    namedWindow("mage filtered Freq 2d", WINDOW_AUTOSIZE );
+    imshow("mage filtered Freq 2d", out_conv_2d);
+    namedWindow("mage filtered Freq Sep", WINDOW_AUTOSIZE );
+    imshow("mage filtered Freq Sep", out_conv_sep);
+    namedWindow("Original Image", WINDOW_AUTOSIZE );
     imshow("Original Image", image);
     namedWindow("Image Filtered: sepFilter2D", WINDOW_AUTOSIZE );
     imshow("Image Filtered: sepFilter2D", img_sepfilter2d_espacio);
