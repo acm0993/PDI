@@ -1,3 +1,0 @@
-/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Tarea5/CMakeFiles/rebuild_cache.dir
-/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Tarea5/CMakeFiles/tarea05.dir
-/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Tarea5/CMakeFiles/edit_cache.dir
