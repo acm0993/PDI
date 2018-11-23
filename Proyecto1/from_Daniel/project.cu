@@ -55,7 +55,7 @@ void maxFilterTrivial(lti::channel8 &res, const lti::channel8 &imgCpu, float &dt
     cudaEventRecord(event2, 0);
 
 
-    cudaEventSynchronize(event1); //optional
+    cudaEventSynchronize(event1);
     cudaEventSynchronize(event2);
 
     cudaEventElapsedTime(&dt_ms, event1, event2);

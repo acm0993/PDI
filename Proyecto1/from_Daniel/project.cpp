@@ -63,6 +63,7 @@ typedef lti::viewer2D viewer_type;
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <chrono>
 
 using std::cout;
 using std::cerr;
@@ -70,11 +71,18 @@ using std::endl;
 
 #include "project.hpp"
 
-void maxFilterCPU(lti::channel8 &res, const lti::channel8 &img, float &dt_ms){
-  lti::maximumFilter<float>::maximumFilter(5);
-  kernel.apply(img,res);
-  dt_ms = 10.0f;
+using namespace std::chrono;
 
+
+
+
+  typedef std::chrono::high_resolution_clock Time;
+  typedef std::chrono::microseconds us;
+  typedef std::chrono::duration<float> fsec;
+
+void maxFilterCPU(lti::channel8 &res, const lti::channel8 &img){
+  lti::maximumFilter<lti::channel8::value_type>kernel(5);
+  kernel.apply(img,res);
 }
 
 /*
@@ -114,6 +122,9 @@ void parseArgs(int argc, char*argv[],
  * Main method
  */
 int main(int argc, char* argv[]) {
+  high_resolution_clock::time_point t0, t1;
+  fsec elapsed_time;
+
   static const char* confFile = "project.dat";
 
   std::string imgFile;
@@ -169,9 +180,14 @@ int main(int argc, char* argv[]) {
   float dt_ms;
   do {
     // Apply algorithm;
-    maxFilterCPU(res_cpu, img, dt_ms)
+    t0 = Time::now();
+    maxFilterCPU(res_cpu, img);
+    t1 = Time::now();
+    elapsed_time = t1 - t0;
+    std::cout << "elapsed time cpu: " << elapsed_time.count() << '\n';
+
     maxFilterTrivial(res, img, dt_ms);
-    std::cout << "elapsed time: " << dt_ms << '\n';
+    std::cout << "elapsed time gpu: " << dt_ms << '\n';
 
     // Show
     //if(showTransformed)
@@ -180,7 +196,7 @@ int main(int argc, char* argv[]) {
     //else
         view_origianl.show(img);
 
-    if(view.waitButtonReleased(action, pos))
+    if(view_trivial.waitButtonReleased(action, pos))
     {
         std::cout << "click" << std::endl;
         showTransformed = !showTransformed;
