@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007 by Pablo Alvarado
- * 
+ *
  * This file is part of the LTI-Computer Vision Library 2 (LTI-Lib-2)
  *
  * The LTI-Lib-2 is free software; you can redistribute it and/or
@@ -35,7 +35,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** 
+/**
  * \file   surfLocalDescriptor.cpp
  *         Contains an example of use for the class lti::surfLocalDescriptor
  * \author Pablo Alvarado
@@ -53,6 +53,7 @@
 #include "ltiBilinearInterpolation.h"
 
 #include "ltiLispStreamHandler.h"
+#include <ltiMaximumFilter.h>
 
 #include "ltiViewer2D.h" // The normal viewer
 typedef lti::viewer2D viewer_type;
@@ -69,8 +70,15 @@ using std::endl;
 
 #include "project.hpp"
 
+void maxFilterCPU(lti::channel8 &res, const lti::channel8 &img, float &dt_ms){
+  lti::maximumFilter<float>::maximumFilter(5);
+  kernel.apply(img,res);
+  dt_ms = 10.0f;
+
+}
+
 /*
- * Help 
+ * Help
  */
 void usage() {
   cout << "Usage: matrixTransform [image] [-h]" << endl;
@@ -81,9 +89,9 @@ void usage() {
 /*
  * Parse the line command arguments
  */
-void parseArgs(int argc, char*argv[], 
+void parseArgs(int argc, char*argv[],
                std::string& filename) {
-  
+
   filename.clear();
   // check each argument of the command line
   for (int i=1; i<argc; i++) {
@@ -147,30 +155,37 @@ int main(int argc, char* argv[]) {
     out<<std::endl;
   }
 
-  lti::channel8 res;
+  lti::channel8 res, res_cpu;
   res.resize(img.rows(), img.columns(), 0);
+  res_cpu.resize(img.rows(), img.columns(), 0);
 
-  lti::viewer2D view("Transformed");
+  lti::viewer2D view_trivial("Transformed Trivial");
+  lti::viewer2D view_origianl("Original");
+  lti::viewer2D view_cpu("Transformed CPU");
   lti::viewer2D::interaction action;
   lti::ipoint pos;
 
   bool showTransformed= true;
+  float dt_ms;
   do {
     // Apply algorithm;
-    maxFilterTrivial(res, img);
+    maxFilterCPU(res_cpu, img, dt_ms)
+    maxFilterTrivial(res, img, dt_ms);
+    std::cout << "elapsed time: " << dt_ms << '\n';
 
     // Show
-    if(showTransformed)
-        view.show(res);
-    else
-        view.show(img);
-    
+    //if(showTransformed)
+        view_trivial.show(res);
+        view_cpu.show(res_cpu);
+    //else
+        view_origianl.show(img);
+
     if(view.waitButtonReleased(action, pos))
     {
         std::cout << "click" << std::endl;
         showTransformed = !showTransformed;
     }
   } while(action.action != lti::viewer2D::Closed);
-  
+
   return EXIT_SUCCESS;
 }

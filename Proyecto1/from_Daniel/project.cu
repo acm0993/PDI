@@ -33,9 +33,12 @@ __global__ void maxFilterTrivialKernel(CudaImage imgDst, const CudaImage imgSrc)
     }
 }
 
-void maxFilterTrivial(lti::channel8 &res, const lti::channel8 &imgCpu)
+void maxFilterTrivial(lti::channel8 &res, const lti::channel8 &imgCpu, float &dt_ms)
 {
     CudaImage imgSrc, imgDst;
+    cudaEvent_t event1, event2;
+    cudaEventCreate(&event1);
+    cudaEventCreate(&event2);
 
     imgSrc.width = imgDst.width = imgCpu.columns();
     imgSrc.height = imgDst.height = imgCpu.rows();
@@ -43,9 +46,19 @@ void maxFilterTrivial(lti::channel8 &res, const lti::channel8 &imgCpu)
     cudaMallocPitch(&imgSrc.data, &imgSrc.pitch, imgCpu.columns(), imgCpu.rows());
     cudaMallocPitch(&imgDst.data, &imgDst.pitch, imgCpu.columns(), imgCpu.rows());
 
+
+
     cudaMemcpy2D(imgSrc.data, imgSrc.pitch, imgCpu.data(), imgCpu.columns(), imgCpu.columns(), imgCpu.rows(), cudaMemcpyHostToDevice);
 
+    cudaEventRecord(event1, 0);
     maxFilterTrivialKernel<<<1,1>>>(imgDst,imgSrc);
+    cudaEventRecord(event2, 0);
+
+
+    cudaEventSynchronize(event1); //optional
+    cudaEventSynchronize(event2);
+
+    cudaEventElapsedTime(&dt_ms, event1, event2);
 
     cudaMemcpy2D(res.data(), res.columns(), imgDst.data, imgDst.pitch, res.columns(), res.rows(), cudaMemcpyDeviceToHost);
 }
