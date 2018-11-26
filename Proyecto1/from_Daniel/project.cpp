@@ -166,13 +166,17 @@ int main(int argc, char* argv[]) {
     out<<std::endl;
   }
 
-  lti::channel8 res, res_cpu;
+  lti::channel8 res, res_cpu, res_separable, tmp;
   res.resize(img.rows(), img.columns(), 0);
   res_cpu.resize(img.rows(), img.columns(), 0);
+  res_separable.resize(img.rows(), img.columns(), 0);
+  //tmp.resize(img.rows(), img.columns(), 0);
 
   lti::viewer2D view_trivial("Transformed Trivial");
+  lti::viewer2D view_separable("Transformed Separable");
   lti::viewer2D view_origianl("Original");
   lti::viewer2D view_cpu("Transformed CPU");
+  //lti::viewer2D view_tmp("Transformed TMP");
   lti::viewer2D::interaction action;
   lti::ipoint pos;
 
@@ -186,13 +190,17 @@ int main(int argc, char* argv[]) {
     elapsed_time = t1 - t0;
     std::cout << "elapsed time cpu: " << elapsed_time.count() << '\n';
 
+    maxFilterSeparable(res_separable, img, dt_ms);
+    std::cout << "elapsed time gpu Separable: " << dt_ms << '\n';
     maxFilterTrivial(res, img, dt_ms);
-    std::cout << "elapsed time gpu: " << dt_ms << '\n';
+    std::cout << "elapsed time gpu trivial: " << dt_ms << '\n';
 
     // Show
     //if(showTransformed)
         view_trivial.show(res);
         view_cpu.show(res_cpu);
+        view_separable.show(res_separable);
+        //view_tmp.show(tmp);
     //else
         view_origianl.show(img);
 
