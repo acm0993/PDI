@@ -166,14 +166,16 @@ int main(int argc, char* argv[]) {
     out<<std::endl;
   }
 
-  lti::channel8 res, res_cpu, res_separable, tmp;
+  lti::channel8 res, res_cpu, res_separable, res_separable_mth,tmp;
   res.resize(img.rows(), img.columns(), 0);
   res_cpu.resize(img.rows(), img.columns(), 0);
   res_separable.resize(img.rows(), img.columns(), 0);
+  res_separable_mth.resize(img.rows(), img.columns(), 0);
   //tmp.resize(img.rows(), img.columns(), 0);
 
   lti::viewer2D view_trivial("Transformed Trivial");
   lti::viewer2D view_separable("Transformed Separable");
+  lti::viewer2D view_separable_mth("Transformed Separable + MTH");
   lti::viewer2D view_origianl("Original");
   lti::viewer2D view_cpu("Transformed CPU");
   //lti::viewer2D view_tmp("Transformed TMP");
@@ -189,17 +191,21 @@ int main(int argc, char* argv[]) {
     t1 = Time::now();
     elapsed_time = t1 - t0;
     std::cout << "elapsed time cpu: " << elapsed_time.count() << '\n';
+    maxFilterTrivial(res, img, dt_ms);
+    std::cout << "elapsed time gpu trivial: " << dt_ms << '\n';
 
     maxFilterSeparable(res_separable, img, dt_ms);
     std::cout << "elapsed time gpu Separable: " << dt_ms << '\n';
-    maxFilterTrivial(res, img, dt_ms);
-    std::cout << "elapsed time gpu trivial: " << dt_ms << '\n';
+    maxFilterSeparableMTH(res_separable_mth, img, dt_ms);
+    std::cout << "elapsed time gpu Separable + MTH: " << dt_ms << '\n';
+
 
     // Show
     //if(showTransformed)
         view_trivial.show(res);
         view_cpu.show(res_cpu);
         view_separable.show(res_separable);
+        view_separable_mth.show(res_separable_mth);
         //view_tmp.show(tmp);
     //else
         view_origianl.show(img);
