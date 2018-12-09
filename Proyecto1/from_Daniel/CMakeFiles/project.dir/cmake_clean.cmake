@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/project.dir/project.cpp.o"
-  "CMakeFiles/project.dir/project.cu.o"
+  "CMakeFiles/project.dir/src/project.cpp.o"
+  "CMakeFiles/project.dir/src/project.cu.o"
   "CMakeFiles/project.dir/cmake_device_link.o"
   "project.pdb"
   "project"

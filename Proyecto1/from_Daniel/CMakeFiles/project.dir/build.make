@@ -57,64 +57,64 @@ include CMakeFiles/project.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/project.dir/flags.make
 
-CMakeFiles/project.dir/project.cpp.o: CMakeFiles/project.dir/flags.make
-CMakeFiles/project.dir/project.cpp.o: project.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/project.dir/project.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/project.dir/project.cpp.o -c /home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/project.cpp
+CMakeFiles/project.dir/src/project.cpp.o: CMakeFiles/project.dir/flags.make
+CMakeFiles/project.dir/src/project.cpp.o: src/project.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/project.dir/src/project.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/project.dir/src/project.cpp.o -c /home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/src/project.cpp
 
-CMakeFiles/project.dir/project.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/project.dir/project.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/project.cpp > CMakeFiles/project.dir/project.cpp.i
+CMakeFiles/project.dir/src/project.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/project.dir/src/project.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/src/project.cpp > CMakeFiles/project.dir/src/project.cpp.i
 
-CMakeFiles/project.dir/project.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/project.dir/project.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/project.cpp -o CMakeFiles/project.dir/project.cpp.s
+CMakeFiles/project.dir/src/project.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/project.dir/src/project.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/src/project.cpp -o CMakeFiles/project.dir/src/project.cpp.s
 
-CMakeFiles/project.dir/project.cpp.o.requires:
+CMakeFiles/project.dir/src/project.cpp.o.requires:
 
-.PHONY : CMakeFiles/project.dir/project.cpp.o.requires
+.PHONY : CMakeFiles/project.dir/src/project.cpp.o.requires
 
-CMakeFiles/project.dir/project.cpp.o.provides: CMakeFiles/project.dir/project.cpp.o.requires
-	$(MAKE) -f CMakeFiles/project.dir/build.make CMakeFiles/project.dir/project.cpp.o.provides.build
-.PHONY : CMakeFiles/project.dir/project.cpp.o.provides
+CMakeFiles/project.dir/src/project.cpp.o.provides: CMakeFiles/project.dir/src/project.cpp.o.requires
+	$(MAKE) -f CMakeFiles/project.dir/build.make CMakeFiles/project.dir/src/project.cpp.o.provides.build
+.PHONY : CMakeFiles/project.dir/src/project.cpp.o.provides
 
-CMakeFiles/project.dir/project.cpp.o.provides.build: CMakeFiles/project.dir/project.cpp.o
+CMakeFiles/project.dir/src/project.cpp.o.provides.build: CMakeFiles/project.dir/src/project.cpp.o
 
 
-CMakeFiles/project.dir/project.cu.o: CMakeFiles/project.dir/flags.make
-CMakeFiles/project.dir/project.cu.o: project.cu
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CUDA object CMakeFiles/project.dir/project.cu.o"
-	/usr/local/cuda-10.0/bin/nvcc  $(CUDA_DEFINES) $(CUDA_INCLUDES) $(CUDA_FLAGS) -x cu -c /home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/project.cu -o CMakeFiles/project.dir/project.cu.o
+CMakeFiles/project.dir/src/project.cu.o: CMakeFiles/project.dir/flags.make
+CMakeFiles/project.dir/src/project.cu.o: src/project.cu
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CUDA object CMakeFiles/project.dir/src/project.cu.o"
+	/usr/local/cuda-10.0/bin/nvcc  $(CUDA_DEFINES) $(CUDA_INCLUDES) $(CUDA_FLAGS) -x cu -c /home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/src/project.cu -o CMakeFiles/project.dir/src/project.cu.o
 
-CMakeFiles/project.dir/project.cu.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CUDA source to CMakeFiles/project.dir/project.cu.i"
+CMakeFiles/project.dir/src/project.cu.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CUDA source to CMakeFiles/project.dir/src/project.cu.i"
 	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CUDA_CREATE_PREPROCESSED_SOURCE
 
-CMakeFiles/project.dir/project.cu.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CUDA source to assembly CMakeFiles/project.dir/project.cu.s"
+CMakeFiles/project.dir/src/project.cu.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CUDA source to assembly CMakeFiles/project.dir/src/project.cu.s"
 	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CUDA_CREATE_ASSEMBLY_SOURCE
 
-CMakeFiles/project.dir/project.cu.o.requires:
+CMakeFiles/project.dir/src/project.cu.o.requires:
 
-.PHONY : CMakeFiles/project.dir/project.cu.o.requires
+.PHONY : CMakeFiles/project.dir/src/project.cu.o.requires
 
-CMakeFiles/project.dir/project.cu.o.provides: CMakeFiles/project.dir/project.cu.o.requires
-	$(MAKE) -f CMakeFiles/project.dir/build.make CMakeFiles/project.dir/project.cu.o.provides.build
-.PHONY : CMakeFiles/project.dir/project.cu.o.provides
+CMakeFiles/project.dir/src/project.cu.o.provides: CMakeFiles/project.dir/src/project.cu.o.requires
+	$(MAKE) -f CMakeFiles/project.dir/build.make CMakeFiles/project.dir/src/project.cu.o.provides.build
+.PHONY : CMakeFiles/project.dir/src/project.cu.o.provides
 
-CMakeFiles/project.dir/project.cu.o.provides.build: CMakeFiles/project.dir/project.cu.o
+CMakeFiles/project.dir/src/project.cu.o.provides.build: CMakeFiles/project.dir/src/project.cu.o
 
 
 # Object files for target project
 project_OBJECTS = \
-"CMakeFiles/project.dir/project.cpp.o" \
-"CMakeFiles/project.dir/project.cu.o"
+"CMakeFiles/project.dir/src/project.cpp.o" \
+"CMakeFiles/project.dir/src/project.cu.o"
 
 # External object files for target project
 project_EXTERNAL_OBJECTS =
 
-CMakeFiles/project.dir/cmake_device_link.o: CMakeFiles/project.dir/project.cpp.o
-CMakeFiles/project.dir/cmake_device_link.o: CMakeFiles/project.dir/project.cu.o
+CMakeFiles/project.dir/cmake_device_link.o: CMakeFiles/project.dir/src/project.cpp.o
+CMakeFiles/project.dir/cmake_device_link.o: CMakeFiles/project.dir/src/project.cu.o
 CMakeFiles/project.dir/cmake_device_link.o: CMakeFiles/project.dir/build.make
 CMakeFiles/project.dir/cmake_device_link.o: CMakeFiles/project.dir/dlink.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CUDA device code CMakeFiles/project.dir/cmake_device_link.o"
@@ -127,14 +127,14 @@ CMakeFiles/project.dir/build: CMakeFiles/project.dir/cmake_device_link.o
 
 # Object files for target project
 project_OBJECTS = \
-"CMakeFiles/project.dir/project.cpp.o" \
-"CMakeFiles/project.dir/project.cu.o"
+"CMakeFiles/project.dir/src/project.cpp.o" \
+"CMakeFiles/project.dir/src/project.cu.o"
 
 # External object files for target project
 project_EXTERNAL_OBJECTS =
 
-project: CMakeFiles/project.dir/project.cpp.o
-project: CMakeFiles/project.dir/project.cu.o
+project: CMakeFiles/project.dir/src/project.cpp.o
+project: CMakeFiles/project.dir/src/project.cu.o
 project: CMakeFiles/project.dir/build.make
 project: CMakeFiles/project.dir/cmake_device_link.o
 project: CMakeFiles/project.dir/link.txt
@@ -146,8 +146,8 @@ CMakeFiles/project.dir/build: project
 
 .PHONY : CMakeFiles/project.dir/build
 
-CMakeFiles/project.dir/requires: CMakeFiles/project.dir/project.cpp.o.requires
-CMakeFiles/project.dir/requires: CMakeFiles/project.dir/project.cu.o.requires
+CMakeFiles/project.dir/requires: CMakeFiles/project.dir/src/project.cpp.o.requires
+CMakeFiles/project.dir/requires: CMakeFiles/project.dir/src/project.cu.o.requires
 
 .PHONY : CMakeFiles/project.dir/requires
 

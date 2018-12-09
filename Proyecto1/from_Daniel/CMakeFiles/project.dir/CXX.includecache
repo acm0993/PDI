@@ -6,25 +6,25 @@
 
 #IncludeRegexTransform: 
 
-/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/project.cpp
+/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/src/project.cpp
 ltiObject.h
-/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/ltiObject.h
+/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/src/ltiObject.h
 ltiIOImage.h
-/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/ltiIOImage.h
+/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/src/ltiIOImage.h
 ltiMath.h
-/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/ltiMath.h
+/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/src/ltiMath.h
 ltiPassiveWait.h
-/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/ltiPassiveWait.h
+/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/src/ltiPassiveWait.h
 ltiMatrixTransform.h
-/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/ltiMatrixTransform.h
+/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/src/ltiMatrixTransform.h
 ltiBilinearInterpolation.h
-/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/ltiBilinearInterpolation.h
+/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/src/ltiBilinearInterpolation.h
 ltiLispStreamHandler.h
-/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/ltiLispStreamHandler.h
+/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/src/ltiLispStreamHandler.h
 ltiMaximumFilter.h
 -
 ltiViewer2D.h
-/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/ltiViewer2D.h
+/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/src/ltiViewer2D.h
 cstdlib
 -
 iostream
@@ -36,9 +36,9 @@ fstream
 chrono
 -
 project.hpp
-/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/project.hpp
+/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/src/project.hpp
 
-/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/project.hpp
+/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/src/project.hpp
 ltiChannel8.h
 -
 

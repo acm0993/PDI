@@ -8,9 +8,9 @@ find_package(lti CONFIG REQUIRED HINTS .)
 
 # Create real project
 add_executable(project
-    project.hpp
-    project.cpp
-    project.cu
+    ./src/project.hpp
+    ./src/project.cpp
+    ./src/project.cu
 )
 
 # Request that particles be built with -std=c++11

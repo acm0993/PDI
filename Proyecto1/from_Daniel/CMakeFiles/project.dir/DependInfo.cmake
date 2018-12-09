@@ -5,7 +5,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CUDA
-  "/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/project.cu" "/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/CMakeFiles/project.dir/project.cu.o"
+  "/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/src/project.cu" "/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/CMakeFiles/project.dir/src/project.cu.o"
   )
 set(CMAKE_CUDA_COMPILER_ID "NVIDIA")
 
@@ -44,7 +44,7 @@ set(CMAKE_CUDA_TARGET_INCLUDE_PATH
   "/home/alvaro/Documents/Maestria/PDI/ltilib-2/misc/lamath"
   )
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/project.cpp" "/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/CMakeFiles/project.dir/project.cpp.o"
+  "/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/src/project.cpp" "/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/CMakeFiles/project.dir/src/project.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

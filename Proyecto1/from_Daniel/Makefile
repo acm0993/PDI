@@ -123,59 +123,59 @@ project/fast:
 	$(MAKE) -f CMakeFiles/project.dir/build.make CMakeFiles/project.dir/build
 .PHONY : project/fast
 
-project.o: project.cpp.o
+src/project.o: src/project.cpp.o
 
-.PHONY : project.o
-
-# target to build an object file
-project.cpp.o:
-	$(MAKE) -f CMakeFiles/project.dir/build.make CMakeFiles/project.dir/project.cpp.o
-.PHONY : project.cpp.o
-
-project.i: project.cpp.i
-
-.PHONY : project.i
-
-# target to preprocess a source file
-project.cpp.i:
-	$(MAKE) -f CMakeFiles/project.dir/build.make CMakeFiles/project.dir/project.cpp.i
-.PHONY : project.cpp.i
-
-project.s: project.cpp.s
-
-.PHONY : project.s
-
-# target to generate assembly for a file
-project.cpp.s:
-	$(MAKE) -f CMakeFiles/project.dir/build.make CMakeFiles/project.dir/project.cpp.s
-.PHONY : project.cpp.s
-
-project.o: project.cu.o
-
-.PHONY : project.o
+.PHONY : src/project.o
 
 # target to build an object file
-project.cu.o:
-	$(MAKE) -f CMakeFiles/project.dir/build.make CMakeFiles/project.dir/project.cu.o
-.PHONY : project.cu.o
+src/project.cpp.o:
+	$(MAKE) -f CMakeFiles/project.dir/build.make CMakeFiles/project.dir/src/project.cpp.o
+.PHONY : src/project.cpp.o
 
-project.i: project.cu.i
+src/project.i: src/project.cpp.i
 
-.PHONY : project.i
+.PHONY : src/project.i
 
 # target to preprocess a source file
-project.cu.i:
-	$(MAKE) -f CMakeFiles/project.dir/build.make CMakeFiles/project.dir/project.cu.i
-.PHONY : project.cu.i
+src/project.cpp.i:
+	$(MAKE) -f CMakeFiles/project.dir/build.make CMakeFiles/project.dir/src/project.cpp.i
+.PHONY : src/project.cpp.i
 
-project.s: project.cu.s
+src/project.s: src/project.cpp.s
 
-.PHONY : project.s
+.PHONY : src/project.s
 
 # target to generate assembly for a file
-project.cu.s:
-	$(MAKE) -f CMakeFiles/project.dir/build.make CMakeFiles/project.dir/project.cu.s
-.PHONY : project.cu.s
+src/project.cpp.s:
+	$(MAKE) -f CMakeFiles/project.dir/build.make CMakeFiles/project.dir/src/project.cpp.s
+.PHONY : src/project.cpp.s
+
+src/project.o: src/project.cu.o
+
+.PHONY : src/project.o
+
+# target to build an object file
+src/project.cu.o:
+	$(MAKE) -f CMakeFiles/project.dir/build.make CMakeFiles/project.dir/src/project.cu.o
+.PHONY : src/project.cu.o
+
+src/project.i: src/project.cu.i
+
+.PHONY : src/project.i
+
+# target to preprocess a source file
+src/project.cu.i:
+	$(MAKE) -f CMakeFiles/project.dir/build.make CMakeFiles/project.dir/src/project.cu.i
+.PHONY : src/project.cu.i
+
+src/project.s: src/project.cu.s
+
+.PHONY : src/project.s
+
+# target to generate assembly for a file
+src/project.cu.s:
+	$(MAKE) -f CMakeFiles/project.dir/build.make CMakeFiles/project.dir/src/project.cu.s
+.PHONY : src/project.cu.s
 
 # Help Target
 help:
@@ -186,12 +186,12 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... project"
-	@echo "... project.o"
-	@echo "... project.i"
-	@echo "... project.s"
-	@echo "... project.o"
-	@echo "... project.i"
-	@echo "... project.s"
+	@echo "... src/project.o"
+	@echo "... src/project.i"
+	@echo "... src/project.s"
+	@echo "... src/project.o"
+	@echo "... src/project.i"
+	@echo "... src/project.s"
 .PHONY : help
 
 
