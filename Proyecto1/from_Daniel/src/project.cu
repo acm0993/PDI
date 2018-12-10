@@ -9,8 +9,6 @@ struct CudaImage
     size_t pitch;
 };
 
-#define N 32
-#define KERNEL_RADIUS 2
 
 __global__ void maxFilterTrivialKernel(CudaImage imgDst, const CudaImage imgSrc)
 {
@@ -20,9 +18,9 @@ __global__ void maxFilterTrivialKernel(CudaImage imgDst, const CudaImage imgSrc)
         {
             uint8_t max = imgSrc.data[j*imgSrc.pitch + i];
 
-            for(int32_t a=i-2; a<i+2; a++)
+            for(int32_t a=i- KERNEL_RADIUS; a<i+ KERNEL_RADIUS; a++)
             {
-                for(int32_t b=j-2; b<j+2; b++)
+                for(int32_t b=j- KERNEL_RADIUS; b<j+ KERNEL_RADIUS; b++)
                 {
                     uint8_t value=max;
                     if(a >= 0 && a < imgSrc.width && b >= 0 && b < imgSrc.height)
@@ -68,12 +66,13 @@ void maxFilterTrivial(lti::channel8 &res, const lti::channel8 &imgCpu, float &dt
     cudaFree(&imgDst);
 }
 
+
 __global__ void maxFilterSeparableKernel(CudaImage imgDst, const CudaImage imgSrc, CudaImage tmp)
 {
   for (int32_t j = 0; j < imgSrc.height; j++) {
-    for (size_t i = 0; i < imgSrc.width; i++) {
+    for (int32_t i = 0; i < imgSrc.width; i++) {
       uint8_t max = imgSrc.data[j*imgSrc.pitch + i];
-      for (int32_t b = j-2; b < j+2; b++) {
+      for (int32_t b = j- KERNEL_RADIUS; b < j+ KERNEL_RADIUS; b++) {
         uint8_t value = max;
         if(b >= 0 && b < imgSrc.height)
           value = imgSrc.data[b*imgSrc.pitch + i];
@@ -87,9 +86,9 @@ __global__ void maxFilterSeparableKernel(CudaImage imgDst, const CudaImage imgSr
   }
 
   for (int32_t j = 0; j < tmp.height; j++) {
-    for (size_t i = 0; i < tmp.width; i++) {
+    for (int32_t i = 0; i < tmp.width; i++) {
       uint8_t max = tmp.data[j*tmp.pitch + i];
-      for (int32_t a = i-2; a < i+2; a++) {
+      for (int32_t a = i- KERNEL_RADIUS; a < i+ KERNEL_RADIUS; a++) {
         uint8_t value = max;
         if(a >= 0 && a < tmp.width)
           value = tmp.data[j*tmp.pitch + a];
@@ -119,10 +118,6 @@ void maxFilterSeparable(lti::channel8 &res, const lti::channel8 &imgCpu, float &
 
     cudaMemcpy2D(imgSrc.data, imgSrc.pitch, imgCpu.data(), imgCpu.columns(), imgCpu.columns(), imgCpu.rows(), cudaMemcpyHostToDevice);
 
-
-    // for (size_t i = 0; i < 10; i++) {
-    //   maxFilterSeparableKernel<<<1,1>>>(imgDst,imgSrc, tmp);
-    // }
     cudaEventRecord(event1, 0);
     maxFilterSeparableKernel<<<1,1>>>(imgDst,imgSrc, tmp);
     cudaEventRecord(event2, 0);
@@ -140,36 +135,37 @@ void maxFilterSeparable(lti::channel8 &res, const lti::channel8 &imgCpu, float &
     cudaFree(&tmp);
 }
 
-__global__ void maxFilterSeparableMTHKernel(CudaImage imgDst, const CudaImage imgSrc, CudaImage tmp)
+__global__ void maxFilterSeparableMTHKernel_cols(CudaImage imgDst, const CudaImage imgSrc)//, CudaImage tmp)
 {
-  uint8_t max;
+  uint8_t max = 0,value = 0;
   uint i = threadIdx.x + blockIdx.x * blockDim.x;
   uint j = threadIdx.y + blockIdx.y * blockDim.y;
   uint Idx = j*imgSrc.pitch + i;
 
   max = imgSrc.data[Idx];
-  for (int32_t b = j-2; b < j+2; b++) {
-    uint8_t value = max;
-    if(b >= 0 && b < imgSrc.height)
-      value = imgSrc.data[b*imgSrc.pitch + i];
+  for (int32_t b = j- KERNEL_RADIUS; b < j+ KERNEL_RADIUS; b++) {
+    value = imgSrc.data[b*imgSrc.pitch + i];
     if(value > max)
       max = value;
     }
-  tmp.data[Idx] = max;
+    imgDst.data[Idx] = max;
 
-  __syncthreads();
-  max = tmp.data[Idx];
-  for (int32_t a = i-2; a < i+2; a++) {
-    uint8_t value = max;
-    if(a >= 0 && a < tmp.width)
-      value = tmp.data[j*tmp.pitch + a];
+}
+
+__global__ void maxFilterSeparableMTHKernel_rows(CudaImage imgDst, const CudaImage imgSrc)//, CudaImage tmp)
+{
+  uint8_t max = 0,value = 0;
+  uint i = threadIdx.x + blockIdx.x * blockDim.x;
+  uint j = threadIdx.y + blockIdx.y * blockDim.y;
+  uint Idx = j*imgSrc.pitch + i;
+
+  max = imgSrc.data[Idx];
+  for (int32_t b = i- KERNEL_RADIUS; b < i+ KERNEL_RADIUS; b++) {
+    value = imgSrc.data[j*imgSrc.pitch + b];
     if(value > max)
       max = value;
     }
   imgDst.data[Idx] = max;
-
-
-
 }
 
 void maxFilterSeparableMTH(lti::channel8 &res, const lti::channel8 &imgCpu, float &dt_ms)
@@ -179,9 +175,7 @@ void maxFilterSeparableMTH(lti::channel8 &res, const lti::channel8 &imgCpu, floa
     cudaEventCreate(&event1);
     cudaEventCreate(&event2);
 
-    //uint N = 32;
-
-    dim3 blocks(N,N);
+    dim3 blocks;
     blocks.x = (imgCpu.columns()+N-1)/N;
     blocks.y = (imgCpu.rows()+N-1)/N;
     dim3 threads(N,N);
@@ -197,10 +191,9 @@ void maxFilterSeparableMTH(lti::channel8 &res, const lti::channel8 &imgCpu, floa
     cudaMemcpy2D(imgSrc.data, imgSrc.pitch, imgCpu.data(), imgCpu.columns(), imgCpu.columns(), imgCpu.rows(), cudaMemcpyHostToDevice);
 
     cudaEventRecord(event1, 0);
-    //maxFilterSeparableMTHKernel<<<(imgCpu.columns()+N-1)/N,N>>>(imgDst,imgSrc, tmp);
-    maxFilterSeparableMTHKernel<<<blocks,threads>>>(imgDst,imgSrc, tmp);
+    maxFilterSeparableMTHKernel_rows<<<blocks,threads>>>(tmp,imgSrc);
+    maxFilterSeparableMTHKernel_cols<<<blocks,threads>>>(imgDst,tmp);
     cudaEventRecord(event2, 0);
-
 
     cudaEventSynchronize(event1);
     cudaEventSynchronize(event2);
@@ -214,16 +207,7 @@ void maxFilterSeparableMTH(lti::channel8 &res, const lti::channel8 &imgCpu, floa
     cudaFree(&tmp);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Row convolution filter
-////////////////////////////////////////////////////////////////////////////////
-#define   ROWS_BLOCKDIM_X 16
-#define   ROWS_BLOCKDIM_Y 8
-#define ROWS_RESULT_STEPS 1
-#define   ROWS_HALO_STEPS 1
-
 __global__ void maxFilterSeparableMTHShMemKernel_Rows(CudaImage imgDst, const CudaImage imgSrc)
-{
 {
     __shared__ uint8_t s_Data[ROWS_BLOCKDIM_Y][(ROWS_RESULT_STEPS + 2 * ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X];
 
@@ -231,14 +215,12 @@ __global__ void maxFilterSeparableMTHShMemKernel_Rows(CudaImage imgDst, const Cu
     const int baseX = (blockIdx.x * ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
     const int baseY = blockIdx.y * ROWS_BLOCKDIM_Y + threadIdx.y;
 
-    // imgSrc.data += baseY * imgSrc.pitch + baseX;
-    // imgDst.data += baseY * imgSrc.pitch + baseX;
 
     int offsetSrc = baseY * imgSrc.pitch + baseX;
     int offsetDst = baseY * imgSrc.pitch + baseX;
 
     //Load main data
-#pragma unroll
+//#pragma unroll
 
     for (int i = ROWS_HALO_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i++)
     {
@@ -246,7 +228,7 @@ __global__ void maxFilterSeparableMTHShMemKernel_Rows(CudaImage imgDst, const Cu
     }
 
     //Load left halo
-#pragma unroll
+//#pragma unroll
 
     for (int i = 0; i < ROWS_HALO_STEPS; i++)
     {
@@ -254,7 +236,7 @@ __global__ void maxFilterSeparableMTHShMemKernel_Rows(CudaImage imgDst, const Cu
     }
 
     //Load right halo
-#pragma unroll
+//#pragma unroll
 
     for (int i = ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS + ROWS_HALO_STEPS; i++)
     {
@@ -265,13 +247,13 @@ __global__ void maxFilterSeparableMTHShMemKernel_Rows(CudaImage imgDst, const Cu
     __syncthreads();
     uint8_t max = 0;//s_Data[threadIdx.y][threadIdx.x];
     uint8_t value = 0;
-#pragma unroll
+//#pragma unroll
 
     for (int i = ROWS_HALO_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i++)
     {
         value = max;
 
-#pragma unroll
+//#pragma unroll
 
         for (int j = -KERNEL_RADIUS; j <= KERNEL_RADIUS; j++)
         {
@@ -284,14 +266,6 @@ __global__ void maxFilterSeparableMTHShMemKernel_Rows(CudaImage imgDst, const Cu
     }
 }
 
-
-}
-
-#define   COLUMNS_BLOCKDIM_X 16
-#define   COLUMNS_BLOCKDIM_Y 8
-#define COLUMNS_RESULT_STEPS 1
-#define   COLUMNS_HALO_STEPS 1
-
 __global__ void maxFilterSeparableMTHShMemKernel_Cols(CudaImage imgDst, const CudaImage imgSrc)
 {
     __shared__ uint8_t s_Data[COLUMNS_BLOCKDIM_X][(COLUMNS_RESULT_STEPS + 2 * COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + 1];
@@ -303,7 +277,7 @@ __global__ void maxFilterSeparableMTHShMemKernel_Cols(CudaImage imgDst, const Cu
     int offsetDst = baseY * imgSrc.pitch + baseX;
 
     //Main data
-#pragma unroll
+//#pragma unroll
 
     for (int i = COLUMNS_HALO_STEPS; i < COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS; i++)
     {
@@ -311,7 +285,7 @@ __global__ void maxFilterSeparableMTHShMemKernel_Cols(CudaImage imgDst, const Cu
     }
 
     //Upper halo
-#pragma unroll
+//#pragma unroll
 
     for (int i = 0; i < COLUMNS_HALO_STEPS; i++)
     {
@@ -319,7 +293,7 @@ __global__ void maxFilterSeparableMTHShMemKernel_Cols(CudaImage imgDst, const Cu
     }
 
     //Lower halo
-#pragma unroll
+//#pragma unroll
 
     for (int i = COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS; i < COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS + COLUMNS_HALO_STEPS; i++)
     {
@@ -328,14 +302,15 @@ __global__ void maxFilterSeparableMTHShMemKernel_Cols(CudaImage imgDst, const Cu
 
     //Compute and store results
     __syncthreads();
+
     uint8_t max = 0;//s_Data[threadIdx.y][threadIdx.x];
     uint8_t value = 0;
-#pragma unroll
+//#pragma unroll
 
     for (int i = COLUMNS_HALO_STEPS; i < COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS; i++)
     {
         value = max;
-#pragma unroll
+//#pragma unroll
 
         for (int j = -KERNEL_RADIUS; j <= KERNEL_RADIUS; j++)
         {

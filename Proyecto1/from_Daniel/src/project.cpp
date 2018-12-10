@@ -85,6 +85,44 @@ void maxFilterCPU(lti::channel8 &res, const lti::channel8 &img){
   kernel.apply(img,res);
 }
 
+void maxFilterTrivialKernelCPU(lti::channel8 &imgDst, const lti::channel8 &imgSrc)
+{
+    for(int32_t j=0; j<imgSrc.rows(); j++)
+    {
+        for(int32_t i=0; i<imgSrc.columns(); i++)
+        {
+            uint8_t max = imgSrc.at(j,i);
+
+            for(int32_t a=i- KERNEL_RADIUS; a<i+ KERNEL_RADIUS; a++)
+            {
+                for(int32_t b=j- KERNEL_RADIUS; b<j+ KERNEL_RADIUS; b++)
+                {
+                    uint8_t value=max;
+                    if(a >= 0 && a < imgSrc.columns() && b >= 0 && b < imgSrc.rows())
+                        value = imgSrc.at(b,a);
+                    if(value > max)
+                        max = value;
+                }
+            }
+            imgDst.at(j,i) = max;
+        }
+    }
+}
+
+void L2norm(const lti::channel8 &img_base, const lti::channel8 &img_mod, double &L2norm_result){
+  double sum = 0;
+  double delta = 0;
+
+  for (uint32_t i = 0; i < img_base.rows(); i++)
+  {
+    for (uint32_t j = 0; j < img_base.columns(); j++) {
+      delta += (img_base.at(i,j) - img_mod.at(i,j)) * (img_base.at(i,j) - img_mod.at(i,j));
+      sum   += img_base.at(i,j) * img_mod.at(i,j);
+    }
+  }
+  L2norm_result = sqrt(delta / sum);
+}
+
 /*
  * Help
  */
@@ -166,33 +204,41 @@ int main(int argc, char* argv[]) {
     out<<std::endl;
   }
 
-  lti::channel8 res, res_cpu, res_separable, res_separable_mth,res_separable_mth_shmem;
+  lti::channel8 res, res_cpu_lti_lib, res_separable, res_separable_mth,res_separable_mth_shmem,res_cpu_trivial;
   res.resize(img.rows(), img.columns(), 0);
-  res_cpu.resize(img.rows(), img.columns(), 0);
+  res_cpu_lti_lib.resize(img.rows(), img.columns(), 0);
+  res_cpu_trivial.resize(img.rows(), img.columns(), 0);
   res_separable.resize(img.rows(), img.columns(), 0);
   res_separable_mth.resize(img.rows(), img.columns(), 0);
   res_separable_mth_shmem.resize(img.rows(), img.columns(), 0);
   //tmp.resize(img.rows(), img.columns(), 0);
 
-  lti::viewer2D view_trivial("Transformed Trivial");
+  lti::viewer2D view_trivial_GPU("Transformed Trivial GPU");
+  lti::viewer2D view_trivial_CPU("Transformed Trivial CPU");
   lti::viewer2D view_separable("Transformed Separable");
   lti::viewer2D view_separable_mth("Transformed Separable + MTH");
   lti::viewer2D view_separable_mth_shmem("Transformed Separable + MTH + Shared Memory");
   lti::viewer2D view_origianl("Original");
-  lti::viewer2D view_cpu("Transformed CPU");
+  lti::viewer2D view_cpu_lti_lib("Transformed CPU LTI::lib");
   //lti::viewer2D view_tmp("Transformed TMP");
   lti::viewer2D::interaction action;
   lti::ipoint pos;
 
   bool showTransformed= true;
   float dt_ms;
+  double l2norm_result;
   do {
     // Apply algorithm;
     t0 = Time::now();
-    maxFilterCPU(res_cpu, img);
+    maxFilterCPU(res_cpu_lti_lib, img);
     t1 = Time::now();
     elapsed_time = t1 - t0;
-    std::cout << "elapsed time cpu: " << elapsed_time.count() << '\n';
+    std::cout << "elapsed time cpu lti::lib: " << elapsed_time.count() << '\n';
+    t0 = Time::now();
+    maxFilterTrivialKernelCPU(res_cpu_trivial, img);
+    t1 = Time::now();
+    elapsed_time = t1 - t0;
+    std::cout << "elapsed time cpu trivial: " << elapsed_time.count() << '\n';
     maxFilterTrivial(res, img, dt_ms);
     std::cout << "elapsed time gpu trivial: " << dt_ms << '\n';
 
@@ -203,21 +249,30 @@ int main(int argc, char* argv[]) {
     maxFilterSeparableMTHShMem(res_separable_mth_shmem, img, dt_ms);
     std::cout << "elapsed time gpu Separable + MTH + Shared Memory: " << dt_ms << '\n';
 
+    L2norm(img, res, l2norm_result);
+    printf("L2 norm for img-trivial: %E\n", l2norm_result);
 
-    // Show
-    //if(showTransformed)
-        view_trivial.show(res);
-        view_cpu.show(res_cpu);
-        view_separable.show(res_separable);
-        view_separable_mth.show(res_separable_mth);
-        view_separable_mth_shmem.show(res_separable_mth_shmem);
+    L2norm(res, res_separable, l2norm_result);
+    printf("L2 norm for trivial-separable: %E\n", l2norm_result);
 
+    L2norm(res, res_separable_mth, l2norm_result);
+    printf("L2 norm for trivial-separable + MTH: %E\n", l2norm_result);
 
-        //view_tmp.show(tmp);
-    //else
-        view_origianl.show(img);
+    L2norm(res, res_separable_mth_shmem, l2norm_result);
+    printf("L2 norm for trivial-separable + MTH + Shared Mem: %E\n", l2norm_result);
 
-    if(view_trivial.waitButtonReleased(action, pos))
+    L2norm(res, res_cpu_trivial, l2norm_result);
+    printf("L2 norm for trivial gpu - trivial cpu: %E\n", l2norm_result);
+
+    view_trivial_CPU.show(res_cpu_trivial);
+    view_trivial_GPU.show(res);
+    view_cpu_lti_lib.show(res_cpu_lti_lib);
+    view_separable.show(res_separable);
+    view_separable_mth.show(res_separable_mth);
+    view_separable_mth_shmem.show(res_separable_mth_shmem);
+    view_origianl.show(img);
+
+    if(view_trivial_GPU.waitButtonReleased(action, pos))
     {
         std::cout << "click" << std::endl;
         showTransformed = !showTransformed;
