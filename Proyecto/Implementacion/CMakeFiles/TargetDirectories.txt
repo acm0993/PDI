@@ -1,0 +1,3 @@
+/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/CMakeFiles/edit_cache.dir
+/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/CMakeFiles/rebuild_cache.dir
+/home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/CMakeFiles/project.dir
