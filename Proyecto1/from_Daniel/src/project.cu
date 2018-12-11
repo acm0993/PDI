@@ -69,9 +69,12 @@ void maxFilterTrivial(lti::channel8 &res, const lti::channel8 &imgCpu, float &dt
 
 __global__ void maxFilterSeparableKernel(CudaImage imgDst, const CudaImage imgSrc, CudaImage tmp)
 {
+  #pragma unroll
   for (int32_t j = 0; j < imgSrc.height; j++) {
+    #pragma unroll
     for (int32_t i = 0; i < imgSrc.width; i++) {
       uint8_t max = imgSrc.data[j*imgSrc.pitch + i];
+      #pragma unroll
       for (int32_t b = j- KERNEL_RADIUS; b < j+ KERNEL_RADIUS; b++) {
         uint8_t value = max;
         if(b >= 0 && b < imgSrc.height)
@@ -84,10 +87,12 @@ __global__ void maxFilterSeparableKernel(CudaImage imgDst, const CudaImage imgSr
     }
 
   }
-
+  #pragma unroll
   for (int32_t j = 0; j < tmp.height; j++) {
+    #pragma unroll
     for (int32_t i = 0; i < tmp.width; i++) {
       uint8_t max = tmp.data[j*tmp.pitch + i];
+      #pragma unroll
       for (int32_t a = i- KERNEL_RADIUS; a < i+ KERNEL_RADIUS; a++) {
         uint8_t value = max;
         if(a >= 0 && a < tmp.width)
@@ -143,6 +148,7 @@ __global__ void maxFilterSeparableMTHKernel_cols(CudaImage imgDst, const CudaIma
   uint Idx = j*imgSrc.pitch + i;
 
   max = imgSrc.data[Idx];
+  #pragma unroll
   for (int32_t b = j- KERNEL_RADIUS; b < j+ KERNEL_RADIUS; b++) {
     value = imgSrc.data[b*imgSrc.pitch + i];
     if(value > max)
@@ -160,6 +166,7 @@ __global__ void maxFilterSeparableMTHKernel_rows(CudaImage imgDst, const CudaIma
   uint Idx = j*imgSrc.pitch + i;
 
   max = imgSrc.data[Idx];
+  #pragma unroll
   for (int32_t b = i- KERNEL_RADIUS; b < i+ KERNEL_RADIUS; b++) {
     value = imgSrc.data[j*imgSrc.pitch + b];
     if(value > max)
@@ -211,7 +218,6 @@ __global__ void maxFilterSeparableMTHShMemKernel_Rows(CudaImage imgDst, const Cu
 {
     __shared__ uint8_t s_Data[ROWS_BLOCKDIM_Y][(ROWS_RESULT_STEPS + 2 * ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X];
 
-    //Offset to the left halo edge
     const int baseX = (blockIdx.x * ROWS_RESULT_STEPS - ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X + threadIdx.x;
     const int baseY = blockIdx.y * ROWS_BLOCKDIM_Y + threadIdx.y;
 
@@ -219,41 +225,39 @@ __global__ void maxFilterSeparableMTHShMemKernel_Rows(CudaImage imgDst, const Cu
     int offsetSrc = baseY * imgSrc.pitch + baseX;
     int offsetDst = baseY * imgSrc.pitch + baseX;
 
-    //Load main data
-//#pragma unroll
+    #pragma unroll
 
     for (int i = ROWS_HALO_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i++)
     {
         s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = imgSrc.data[offsetSrc + i * ROWS_BLOCKDIM_X];
     }
 
-    //Load left halo
-//#pragma unroll
+    #pragma unroll
 
     for (int i = 0; i < ROWS_HALO_STEPS; i++)
     {
         s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = (baseX >= -i * ROWS_BLOCKDIM_X) ? imgSrc.data[offsetSrc + i * ROWS_BLOCKDIM_X] : 0;
     }
 
-    //Load right halo
-//#pragma unroll
+
+    #pragma unroll
 
     for (int i = ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS + ROWS_HALO_STEPS; i++)
     {
         s_Data[threadIdx.y][threadIdx.x + i * ROWS_BLOCKDIM_X] = (imgSrc.width - baseX > i * ROWS_BLOCKDIM_X) ? imgSrc.data[offsetSrc + i * ROWS_BLOCKDIM_X] : 0;
     }
 
-    //Compute and store results
+
     __syncthreads();
-    uint8_t max = 0;//s_Data[threadIdx.y][threadIdx.x];
+    uint8_t max = 0;
     uint8_t value = 0;
-//#pragma unroll
+    #pragma unroll
 
     for (int i = ROWS_HALO_STEPS; i < ROWS_HALO_STEPS + ROWS_RESULT_STEPS; i++)
     {
         value = max;
 
-//#pragma unroll
+        #pragma unroll
 
         for (int j = -KERNEL_RADIUS; j <= KERNEL_RADIUS; j++)
         {
@@ -270,47 +274,45 @@ __global__ void maxFilterSeparableMTHShMemKernel_Cols(CudaImage imgDst, const Cu
 {
     __shared__ uint8_t s_Data[COLUMNS_BLOCKDIM_X][(COLUMNS_RESULT_STEPS + 2 * COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + 1];
 
-    //Offset to the upper halo edge
+
     const int baseX = blockIdx.x * COLUMNS_BLOCKDIM_X + threadIdx.x;
     const int baseY = (blockIdx.y * COLUMNS_RESULT_STEPS - COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + threadIdx.y;
     int offsetSrc = baseY * imgSrc.pitch + baseX;
     int offsetDst = baseY * imgSrc.pitch + baseX;
 
-    //Main data
-//#pragma unroll
+
+    #pragma unroll
 
     for (int i = COLUMNS_HALO_STEPS; i < COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS; i++)
     {
         s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y] = imgSrc.data[offsetSrc + i * COLUMNS_BLOCKDIM_Y * imgSrc.pitch];
     }
 
-    //Upper halo
-//#pragma unroll
+    #pragma unroll
 
     for (int i = 0; i < COLUMNS_HALO_STEPS; i++)
     {
         s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y] = (baseY >= -i * COLUMNS_BLOCKDIM_Y) ? imgSrc.data[offsetSrc + i * COLUMNS_BLOCKDIM_Y * imgSrc.pitch] : 0;
     }
 
-    //Lower halo
-//#pragma unroll
+    #pragma unroll
 
     for (int i = COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS; i < COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS + COLUMNS_HALO_STEPS; i++)
     {
         s_Data[threadIdx.x][threadIdx.y + i * COLUMNS_BLOCKDIM_Y]= (imgSrc.height - baseY > i * COLUMNS_BLOCKDIM_Y) ? imgSrc.data[offsetSrc + i * COLUMNS_BLOCKDIM_Y * imgSrc.pitch] : 0;
     }
 
-    //Compute and store results
+
     __syncthreads();
 
-    uint8_t max = 0;//s_Data[threadIdx.y][threadIdx.x];
+    uint8_t max = 0;
     uint8_t value = 0;
-//#pragma unroll
+    #pragma unroll
 
     for (int i = COLUMNS_HALO_STEPS; i < COLUMNS_HALO_STEPS + COLUMNS_RESULT_STEPS; i++)
     {
         value = max;
-//#pragma unroll
+        #pragma unroll
 
         for (int j = -KERNEL_RADIUS; j <= KERNEL_RADIUS; j++)
         {
@@ -332,13 +334,6 @@ void maxFilterSeparableMTHShMem(lti::channel8 &res, const lti::channel8 &imgCpu,
     cudaEventCreate(&event1);
     cudaEventCreate(&event2);
 
-    //uint N = 32;
-
-    /*dim3 blocks;
-    blocks.x = (imgCpu.columns()+N-1)/N;
-    blocks.y = (imgCpu.rows()+N-1)/N;
-    dim3 threads(N,N);*/
-
     dim3 blocks_row(imgCpu.columns() / (ROWS_RESULT_STEPS *ROWS_BLOCKDIM_X), imgCpu.rows() / ROWS_BLOCKDIM_Y);
     dim3 threads_row(ROWS_BLOCKDIM_X, ROWS_BLOCKDIM_Y);
     dim3 blocks_col(imgCpu.columns() / COLUMNS_BLOCKDIM_X, imgCpu.rows() / (COLUMNS_RESULT_STEPS * COLUMNS_BLOCKDIM_Y));
@@ -355,7 +350,6 @@ void maxFilterSeparableMTHShMem(lti::channel8 &res, const lti::channel8 &imgCpu,
     cudaMemcpy2D(imgSrc.data, imgSrc.pitch, imgCpu.data(), imgCpu.columns(), imgCpu.columns(), imgCpu.rows(), cudaMemcpyHostToDevice);
 
     cudaEventRecord(event1, 0);
-    //maxFilterSeparableMTHShMemKernel<<<blocks,threads>>>(imgDst,imgSrc,tmp);
     maxFilterSeparableMTHShMemKernel_Rows<<<blocks_row,threads_row>>>(tmp,imgSrc);
     maxFilterSeparableMTHShMemKernel_Cols<<<blocks_col,threads_col>>>(imgDst,tmp);
     cudaEventRecord(event2, 0);

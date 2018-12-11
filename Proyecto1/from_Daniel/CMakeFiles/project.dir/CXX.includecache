@@ -35,6 +35,8 @@ fstream
 -
 chrono
 -
+stdio.h
+-
 project.hpp
 /home/alvaro/Documents/Maestria/PDI/PDI_Tareas/Proyecto1/from_Daniel/src/project.hpp
 

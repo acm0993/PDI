@@ -64,6 +64,7 @@ typedef lti::viewer2D viewer_type;
 #include <string>
 #include <fstream>
 #include <chrono>
+#include <stdio.h>
 
 using std::cout;
 using std::cerr;
@@ -72,13 +73,14 @@ using std::endl;
 #include "project.hpp"
 
 using namespace std::chrono;
+using namespace std;
 
 
 
 
-  typedef std::chrono::high_resolution_clock Time;
-  typedef std::chrono::microseconds us;
-  typedef std::chrono::duration<float> fsec;
+typedef std::chrono::high_resolution_clock Time;
+typedef std::chrono::microseconds us;
+typedef std::chrono::duration<float> fsec;
 
 void maxFilterCPU(lti::channel8 &res, const lti::channel8 &img){
   lti::maximumFilter<lti::channel8::value_type>kernel(5);
@@ -162,6 +164,9 @@ void parseArgs(int argc, char*argv[],
 int main(int argc, char* argv[]) {
   high_resolution_clock::time_point t0, t1;
   fsec elapsed_time;
+  ofstream time_vs_kernel_file, time_vs_img_size_file;
+  std::string filename_time_vs_kernel = "time_vs_kernel.csv";
+  std::string filename_time_vs_img_size = "time_vs_img_size.csv";
 
   static const char* confFile = "project.dat";
 
@@ -227,27 +232,90 @@ int main(int argc, char* argv[]) {
   bool showTransformed= true;
   float dt_ms;
   double l2norm_result;
-  do {
-    // Apply algorithm;
-    t0 = Time::now();
-    maxFilterCPU(res_cpu_lti_lib, img);
-    t1 = Time::now();
-    elapsed_time = t1 - t0;
-    std::cout << "elapsed time cpu lti::lib: " << elapsed_time.count() << '\n';
-    t0 = Time::now();
-    maxFilterTrivialKernelCPU(res_cpu_trivial, img);
-    t1 = Time::now();
-    elapsed_time = t1 - t0;
-    std::cout << "elapsed time cpu trivial: " << elapsed_time.count() << '\n';
-    maxFilterTrivial(res, img, dt_ms);
-    std::cout << "elapsed time gpu trivial: " << dt_ms << '\n';
 
-    maxFilterSeparable(res_separable, img, dt_ms);
-    std::cout << "elapsed time gpu Separable: " << dt_ms << '\n';
-    maxFilterSeparableMTH(res_separable_mth, img, dt_ms);
-    std::cout << "elapsed time gpu Separable + MTH: " << dt_ms << '\n';
-    maxFilterSeparableMTHShMem(res_separable_mth_shmem, img, dt_ms);
-    std::cout << "elapsed time gpu Separable + MTH + Shared Memory: " << dt_ms << '\n';
+  uint num_kernel = 5;
+  uint num_interactions = 30;
+
+  float data_array [num_kernel][num_interactions];
+
+  do {
+    for (uint i = 0; i <= num_kernel; i++){
+      if (i == 0) {
+        data_array[i][0] = (float)i;
+        for(uint j = 0; j <= num_interactions; j++){
+          t0 = Time::now();
+          maxFilterCPU(res_cpu_lti_lib, img);
+          t1 = Time::now();
+          elapsed_time = t1 - t0;
+          dt_ms = elapsed_time.count();
+          data_array[i][j+1] = dt_ms;
+        }
+      }
+      else if (i == 1) {
+        data_array[i][0] = (float)i;
+        for(uint j = 0; j <= num_interactions; j++){
+          t0 = Time::now();
+          maxFilterTrivialKernelCPU(res_cpu_trivial, img);
+          t1 = Time::now();
+          elapsed_time = t1 - t0;
+          dt_ms = elapsed_time.count();
+          data_array[i][j+1] = dt_ms;
+        }
+      }
+      else if (i == 2) {
+        data_array[i][0] = (float)i;
+        for(uint j = 0; j <= num_interactions; j++){
+          maxFilterTrivial(res, img, dt_ms);
+          data_array[i][j+1] = dt_ms;
+
+        }
+      }
+      else if (i == 3) {
+        data_array[i][0] = (float)i;
+        for(uint j = 0; j <= num_interactions; j++){
+          maxFilterSeparable(res_separable, img, dt_ms);
+          data_array[i][j+1] = dt_ms;
+
+        }
+      }
+      else if (i == 4) {
+        data_array[i][0] = (float)i;
+        for(uint j = 0; j <= num_interactions; j++){
+          maxFilterSeparableMTH(res_separable_mth, img, dt_ms);
+          data_array[i][j+1] = dt_ms;
+
+        }
+      }
+      else{
+        data_array[i][0] = (float)i;
+        for(uint j = 0; j <= num_interactions; j++){
+          maxFilterSeparableMTHShMem(res_separable_mth_shmem, img, dt_ms);
+          data_array[i][j+1] = dt_ms;
+        }
+      }
+    }
+
+    // t0 = Time::now();
+    // maxFilterCPU(res_cpu_lti_lib, img);
+    // t1 = Time::now();
+    // elapsed_time = t1 - t0;
+    // dt_ms = elapsed_time.count();
+    // std::cout << "elapsed time cpu lti::lib: " << dt_ms << '\n';
+    // t0 = Time::now();
+    // maxFilterTrivialKernelCPU(res_cpu_trivial, img);
+    // t1 = Time::now();
+    // elapsed_time = t1 - t0;
+    // dt_ms = elapsed_time.count();
+    // std::cout << "elapsed time cpu trivial: " << dt_ms << '\n';
+    // maxFilterTrivial(res, img, dt_ms);
+    // std::cout << "elapsed time gpu trivial: " << dt_ms << '\n';
+    //
+    // maxFilterSeparable(res_separable, img, dt_ms);
+    // std::cout << "elapsed time gpu Separable: " << dt_ms << '\n';
+    //maxFilterSeparableMTH(res_separable_mth, img, dt_ms);
+    // std::cout << "elapsed time gpu Separable + MTH: " << dt_ms << '\n';
+    // maxFilterSeparableMTHShMem(res_separable_mth_shmem, img, dt_ms);
+    // std::cout << "elapsed time gpu Separable + MTH + Shared Memory: " << dt_ms << '\n';
 
     L2norm(img, res, l2norm_result);
     printf("L2 norm for img-trivial: %E\n", l2norm_result);
@@ -264,6 +332,12 @@ int main(int argc, char* argv[]) {
     L2norm(res, res_cpu_trivial, l2norm_result);
     printf("L2 norm for trivial gpu - trivial cpu: %E\n", l2norm_result);
 
+    L2norm(res_cpu_lti_lib, res_cpu_trivial, l2norm_result);
+    printf("L2 norm for lti - trivial cpu: %E\n", l2norm_result);
+
+    L2norm(res_cpu_lti_lib, res_separable_mth_shmem, l2norm_result);
+    printf("L2 norm for lti - separable + MTH + Shared Mem: %E\n", l2norm_result);
+
     view_trivial_CPU.show(res_cpu_trivial);
     view_trivial_GPU.show(res);
     view_cpu_lti_lib.show(res_cpu_lti_lib);
@@ -272,12 +346,26 @@ int main(int argc, char* argv[]) {
     view_separable_mth_shmem.show(res_separable_mth_shmem);
     view_origianl.show(img);
 
+    time_vs_kernel_file.open(filename_time_vs_kernel, std::ofstream::out | std::ofstream::app);
+
+    if (time_vs_kernel_file.is_open()) {
+      for (uint i = 0; i < num_interactions; i++) {
+        for (uint j = 0; j <= num_kernel; j++) {
+          time_vs_kernel_file << data_array[j][i] << ",";
+        }
+        time_vs_kernel_file << "\n";
+      }
+    }
+    time_vs_kernel_file.close();
+
     if(view_trivial_GPU.waitButtonReleased(action, pos))
     {
         std::cout << "click" << std::endl;
         showTransformed = !showTransformed;
     }
   } while(action.action != lti::viewer2D::Closed);
+
+
 
   return EXIT_SUCCESS;
 }

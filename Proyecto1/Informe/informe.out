@@ -1,0 +1,23 @@
+\BOOKMARK [1][-]{section.1}{Introducci\363n}{}% 1
+\BOOKMARK [1][-]{section.2}{Filtro de M\341ximos}{}% 2
+\BOOKMARK [1][-]{section.3}{GPU}{}% 3
+\BOOKMARK [2][-]{subsection.3.1}{Arquitectura}{section.3}% 4
+\BOOKMARK [2][-]{subsection.3.2}{CUDA: Modelo de Programaci\363n}{section.3}% 5
+\BOOKMARK [1][-]{section.4}{Metodolog\355a}{}% 6
+\BOOKMARK [2][-]{subsection.4.1}{Sistema utilizado}{section.4}% 7
+\BOOKMARK [2][-]{subsection.4.2}{Pasos de Optimizaci\363n}{section.4}% 8
+\BOOKMARK [3][-]{subsubsection.4.2.1}{Funci\363n lti::maximumFilter}{subsection.4.2}% 9
+\BOOKMARK [3][-]{subsubsection.4.2.2}{Kernel Trivial GPU}{subsection.4.2}% 10
+\BOOKMARK [3][-]{subsubsection.4.2.3}{Kernel Trivial CPU}{subsection.4.2}% 11
+\BOOKMARK [3][-]{subsubsection.4.2.4}{Kernel Separable}{subsection.4.2}% 12
+\BOOKMARK [3][-]{subsubsection.4.2.5}{Kernel Separable + Multi-Threading}{subsection.4.2}% 13
+\BOOKMARK [3][-]{subsubsection.4.2.6}{Kernel Separable + Multi-Threading + Shared Memory}{subsection.4.2}% 14
+\BOOKMARK [2][-]{subsection.4.3}{Detecci\363n de diferencias en la imagen de salida}{section.4}% 15
+\BOOKMARK [2][-]{subsection.4.4}{Medici\363n del tiempo de ejecuci\363n}{section.4}% 16
+\BOOKMARK [1][-]{section.5}{Resultados}{}% 17
+\BOOKMARK [2][-]{subsection.5.1}{Reducci\363n de Tiempos de Ejecuci\363n}{section.5}% 18
+\BOOKMARK [2][-]{subsection.5.2}{Tiempos de ejecuci\363n con respecto al tama\361o de la imagen}{section.5}% 19
+\BOOKMARK [2][-]{subsection.5.3}{Similitud de las im\341genes de salida}{section.5}% 20
+\BOOKMARK [1][-]{section.6}{Conclusiones}{}% 21
+\BOOKMARK [1][-]{section.7}{\301reas de Mejora/Trabajos futuros}{}% 22
+\BOOKMARK [1][-]{section*.15}{Referencias}{}% 23
